@@ -3,6 +3,7 @@ import { getVariantMatches, VariantMatch } from '../variants'
 import { Place, places } from '../config/places'
 import { Device, devices } from '../config/device'
 import { getPlacesForDevice } from '../config/place-to-devices'
+import { Scenario } from '../scenario'
 
 function arrayOrCallback<T>(value: T[] | undefined, callback: () => T[]): T[] {
     return value && value.length > 0 ? value : callback()
@@ -12,7 +13,7 @@ function arrayOrAsyncCallback<T>(value: T[] | undefined, callback: () => Promise
     return value && value.length > 0 ? Promise.resolve(value) : callback()
 }
 
-type TurnOnContext = {
+export type TurnOnContext = {
     devices: VariantMatch[]
     devicesToPlaces: [Device, Place][]
 }
@@ -22,10 +23,7 @@ const DEFAULT_CONTEXT: TurnOnContext = {
     devicesToPlaces: [],
 }
 
-export async function turnOnScenario(
-    dialog: Dialog,
-    context: TurnOnContext = structuredClone(DEFAULT_CONTEXT),
-): Promise<Dialog> {
+export const turnOnScenario: Scenario<TurnOnContext> = async (dialog, context = structuredClone(DEFAULT_CONTEXT)) => {
     context.devices = arrayOrCallback(context.devices, () => getVariantMatches(dialog.message, devices))
 
     if (context.devices.length === 0) {
@@ -68,7 +66,5 @@ export async function turnOnScenario(
         }
     }
 
-    console.log(context)
-
-    return dialog
+    return [dialog, context]
 }

@@ -4,12 +4,16 @@ import { stdin, stdout } from 'node:process'
 const rl = createInterface({ input: stdin, output: stdout })
 
 export abstract class Dialog {
-    readonly message: string
+    protected _message: string
+
+    get message(): string {
+        return this._message
+    }
 
     private retryCount = 0
 
     constructor(message: string) {
-        this.message = message
+        this._message = message
     }
 
     /**
@@ -33,13 +37,36 @@ export abstract class Dialog {
 
 export class ConsoleDialog extends Dialog {
     async prompt(question: string): Promise<Dialog> {
-        const answer = await rl.question(`\n<< ${question}\n>> `)
-
-        return new ConsoleDialog(answer)
+        this._message = await rl.question(`\n<< ${question}\n>> `)
+        return this
     }
 
     async send(question: string): Promise<Dialog> {
         rl.write(`\n<< ${question}\n`)
+        return this
+    }
+}
+
+export class TestingDialog extends Dialog {
+    resolve: (value: string) => Promise<void> = () => Promise.resolve()
+    latestAssistantMessage: string = ''
+
+    async prompt(question: string): Promise<Dialog> {
+        this.latestAssistantMessage = question
+
+        this._message = await new Promise<string>((resolve) => {
+            this.resolve = async (value: string) => {
+                resolve(value)
+                await new Promise((resolve) => setTimeout(resolve, 0))
+            }
+        })
+
+        return this
+    }
+
+    async send(question: string): Promise<Dialog> {
+        this.latestAssistantMessage = question
+
         return this
     }
 }
