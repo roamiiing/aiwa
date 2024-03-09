@@ -115,3 +115,8 @@ export const END = raw('$')
 export const CYRILLIC_LETTER = raw('[а-яА-ЯёЁ]')
 
 export const PUNCTUATION = raw('[.,!?;:]')
+
+export const MARKS = raw(`[${escape('`~!@#$%^&*()_+-={}[]|\\:;"\'<>,.?/’‘')}]`)
+
+// because cyrillic letters are considered as word boundaries
+export const CUSTOM_WORD_BOUNDARY = raw(`(?:[\\s]+|${oneOrMore(MARKS)}|^|$)`)

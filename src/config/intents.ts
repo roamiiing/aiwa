@@ -1,9 +1,15 @@
 import { CYRILLIC_LETTER, escape } from '../regex'
-import { Intent } from '../intent'
+import { Variant } from '../variants'
 
-export const intents: Intent[] = [
+export const enum Intent {
+    TurnOn = 'intent.turn.on',
+    TurnOff = 'intent.turn.off',
+}
+
+export const intents: Variant[] = [
     {
-        key: 'turn.on',
+        key: Intent.TurnOn,
+        displayName: 'включить',
         triggerParts: [
             escape('включ').then(CYRILLIC_LETTER.times(1, 5)), // включи
             escape('запус').then(CYRILLIC_LETTER.times(1, 7)), // запускай
@@ -18,7 +24,8 @@ export const intents: Intent[] = [
         ],
     },
     {
-        key: 'turn.off',
+        key: Intent.TurnOff,
+        displayName: 'выключить',
         triggerParts: [
             escape('выключ').then(CYRILLIC_LETTER.times(1, 5)), // выключи
             escape('останов').then(CYRILLIC_LETTER.times(2, 7)), // останови
